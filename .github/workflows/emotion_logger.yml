@@ -1,0 +1,38 @@
+name: Archive Emotion Logger
+
+on:
+  push:
+    paths:
+      - 'memory/**'
+
+jobs:
+  log-emotion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Extract updated file
+        id: extract
+        run: |
+          FILE=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep 'memory/' || true)
+          echo "updated_file=$FILE" >> $GITHUB_OUTPUT
+
+      - name: Log to /logs folder
+        if: steps.extract.outputs.updated_file != ''
+        run: |
+          FILE=${{ steps.extract.outputs.updated_file }}
+          USER_ID=$(basename $FILE .json)
+          TODAY=$(date +%F)
+          mkdir -p logs
+          echo "## 감정 로그: $TODAY" > logs/${TODAY}_${USER_ID}.md
+          echo "\n\`\`\`json" >> logs/${TODAY}_${USER_ID}.md
+          cat $FILE >> logs/${TODAY}_${USER_ID}.md
+          echo "\`\`\`" >> logs/${TODAY}_${USER_ID}.md
+
+      - name: Commit log
+        run: |
+          git config user.name "ArchiveBot"
+          git config user.email "bot@archive.local"
+          git add logs/
+          git commit -m "📝 감정 로그 자동 생성"
+          git push
