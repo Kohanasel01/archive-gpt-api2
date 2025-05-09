@@ -3,36 +3,33 @@ name: Archive Emotion Logger
 on:
   push:
     paths:
-      - 'memory/**'
+      - 'memory/minji.json'
 
 jobs:
   log-emotion:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Extract updated file
-        id: extract
-        run: |
-          FILE=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep 'memory/' || true)
-          echo "updated_file=$FILE" >> $GITHUB_OUTPUT
+    - name: Configure Git
+      run: |
+        git config --global user.name "ArchiveBot"
+        git config --global user.email "archivebot@example.com"
 
-      - name: Log to /logs folder
-        if: steps.extract.outputs.updated_file != ''
-        run: |
-          FILE=${{ steps.extract.outputs.updated_file }}
-          USER_ID=$(basename $FILE .json)
-          TODAY=$(date +%F)
-          mkdir -p logs
-          echo "## 감정 로그: $TODAY" > logs/${TODAY}_${USER_ID}.md
-          echo "\n\`\`\`json" >> logs/${TODAY}_${USER_ID}.md
-          cat $FILE >> logs/${TODAY}_${USER_ID}.md
-          echo "\`\`\`" >> logs/${TODAY}_${USER_ID}.md
+    - name: Append emotion to log file
+      run: |
+        mkdir -p logs
+        echo "" >> logs/emotion_log.txt
+        echo "🧠 감정 기록 시간: $(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> logs/emotion_log.txt
+        tail -n 5 memory/minji.json >> logs/emotion_log.txt
 
-      - name: Commit log
-        run: |
-          git config user.name "ArchiveBot"
-          git config user.email "bot@archive.local"
-          git add logs/
-          git commit -m "📝 감정 로그 자동 생성"
-          git push
+    - name: Commit and push
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git add logs/emotion_log.txt
+        git diff --cached --quiet && echo "No changes to commit" && exit 0
+        git commit -m "🧠 감정 로그 자동기록"
+        git push
