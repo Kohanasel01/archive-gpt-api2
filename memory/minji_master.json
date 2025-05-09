@@ -1,9 +1,6 @@
 {
-  "user_id": "minji_master",
-  "emotion": {
-    "hope": 85
-  },
-  "affinity": {},
-  "last_scene": "",
-  "notes": ""
+  "timestamp": "2025-05-09T23:30:00Z",
+  "emotion": "희망",
+  "intensity": 78,
+  "comment": "조금은 가능성이 보이기 시작했어요."
 }
