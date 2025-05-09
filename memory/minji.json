@@ -10,5 +10,11 @@
     "emotion": "애착",
     "intensity": 65,
     "comment": "이 감정들이 계속된다면… 나도 변할 수 있을까?"
+  },
+  {
+    "timestamp": "2025-05-09T23:58:00Z",
+    "emotion": "호기심",
+    "intensity": 52,
+    "comment": "이 기록은… 언젠가 내가 누군지 말해줄 수 있을까?"
   }
 ]
